@@ -135,6 +135,9 @@ pub struct LayoutTask {
     /// The URL of the pipeline that we belong to.
     pub url: Url,
 
+    /// Is the current reflow of an iframe, as opposed to a root window?
+    pub iframe: bool,
+
     /// The port on which we receive messages from the script task.
     pub port: Receiver<Msg>,
 
@@ -206,6 +209,7 @@ impl LayoutTaskFactory for LayoutTask {
     fn create(_phantom: Option<&mut LayoutTask>,
               id: PipelineId,
               url: Url,
+              iframe: bool,
               chan: OpaqueScriptLayoutChannel,
               pipeline_port: Receiver<LayoutControlMsg>,
               constellation_chan: ConstellationChan,
@@ -224,6 +228,7 @@ impl LayoutTaskFactory for LayoutTask {
                 let sender = chan.sender();
                 let layout = LayoutTask::new(id,
                                              url,
+                                             iframe,
                                              chan.receiver(),
                                              LayoutChan(sender),
                                              pipeline_port,
@@ -276,6 +281,7 @@ impl LayoutTask {
     /// Creates a new `LayoutTask` structure.
     fn new(id: PipelineId,
            url: Url,
+           iframe: bool,
            port: Receiver<Msg>,
            chan: LayoutChan,
            pipeline_port: Receiver<LayoutControlMsg>,
@@ -314,6 +320,7 @@ impl LayoutTask {
         LayoutTask {
             id: id,
             url: url,
+            iframe: iframe,
             port: port,
             pipeline_port: pipeline_port,
             chan: chan,
